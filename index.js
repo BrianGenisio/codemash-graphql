@@ -37,14 +37,13 @@ const schema = buildSchema(`
 class Session {
     constructor(session) {
         this._session = session;
-    }
 
-    id() { return this._session.Id; }
-    title() { return this._session.Title; }
-    abstract() { return this._session.Abstract; }
-    sessionType() { return this._session.SessionType;}
-    tags() { return this._session.Tags; }
-    rooms() { return this._session.Rooms; }
+        this.id = session.Id;
+        this.title = session.Title;
+        this.sessionType = this.SessionType;
+        this.tags = this.Tags;
+        this.rooms = this.Rooms;
+    }
 
     speakers() {
         return this._session.Speakers.map(speaker => {
@@ -57,20 +56,19 @@ class Session {
 class Speaker {
     constructor(speaker) {
         this._speaker = speaker;
+
+        this.id = speaker.Id;
+        this.firstName = speaker.FirstName;
+        this.lastName = speaker.LastName;
+        this.biography = speaker.Biography;
+        this.blogUrl = speaker.BlogUrl;
+        this.gitHubLink = speaker.GitHubLink;
+        this.gravatarUrl = speaker.GravatarUrl;
+        this.linkedInProfile = speaker.LinkedInProfile;
+        this.twitterLink = speaker.TwitterLink;
     }
 
-    id() { return this._speaker.Id; }
-    firstName() { return this._speaker.FirstName; }
-    lastName() { return this._speaker.LastName; }
-    biography() { return this._speaker.Biography; }
-    blogUrl() { return this._speaker.BlogUrl; }
-    gitHubLink() { return this._speaker.GitHubLink; }
-    gravatarUrl() { return this._speaker.GravatarUrl; }
-    linkedInProfile() { return this._speaker.LinkedInProfile; }
-    twitterLink() { return this._speaker.TwitterLink; }
-
     sessions() {
-        console.log(this._speaker)
         return this._speaker.SessionIds.map(sessionId => {
             return sessions.get(sessionId)
                 .then(session => new Session(session));

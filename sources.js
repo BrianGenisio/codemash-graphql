@@ -5,55 +5,37 @@ const camelcaseKeysDeep = (x) => camelcaseKeys(x, {deep: true});
 
 const baseURL = "https://cmprod-speakers.azurewebsites.net/api";
 
-let allSessions = undefined;
-let allSpeakers = undefined;
+class Repo {
+    constructor(endpoint) {
+        this._endpoint = endpoint;
 
-const sessionsRepo = {
-    fetchSessions() {
-        if (!allSessions) {
-            console.log("Fetching Session Data.");
-
-            allSessions = fetch(`${baseURL}/sessionsdata`)
-                .then(r => r.json());
-        }
-
-        return allSessions;
-    },
-
-    get(id) {
-        console.log("Get session", id)
-        return this.fetchSessions()
-            .then(session => session.find(s => s.Id == id));
-    },
-
-    getAll() {
-        return this.fetchSessions();
+        setInterval(() => {
+            // update the data every hour
+            this._dataPromise = undefined;
+            this.fetch();
+        }, 60 * 60 * 1000);
     }
-}
 
-const speakersRepo = {
-    fetchSpeakers() {
-        if (!allSpeakers) {
-            console.log("Fetching Speaker Data.");
-
-            allSpeakers = fetch(`${baseURL}/speakersdata`)
+    fetch(endpoint) {
+        if (!this._dataPromise) {
+            console.log("Fetching data for", this._endpoint);
+            this._dataPromise = fetch(`${baseURL}/${this._endpoint}`)
                 .then(r => r.json());
         }
 
-        return allSpeakers;
-    },
+        return this._dataPromise;
+    }
 
     get(id) {
-        return this.fetchSpeakers()
-            .then(speakers => speakers.find(s => s.Id === id));
-    },
+        return this.fetch().then(data => data.find(d => d.Id == id));
+    }
 
     getAll() {
-        return this.fetchSpeakers();
+        return this.fetch();
     }
 }
 
 module.exports = {
-    sessions: sessionsRepo,
-    speakers: speakersRepo,
+    sessions: new Repo("sessionsdata"),
+    speakers: new Repo("speakersdata"),
 };
