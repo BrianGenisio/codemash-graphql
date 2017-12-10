@@ -14,6 +14,8 @@ class Repo {
             this._dataPromise = undefined;
             this.fetch();
         }, 60 * 60 * 1000);
+
+        this.fetch();
     }
 
     fetch(endpoint) {
