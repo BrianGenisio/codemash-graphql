@@ -37,7 +37,44 @@ class Repo {
     }
 }
 
+const sessionsRepo = new Repo("sessionsdata");
+const speakersRepo = new Repo("speakersdata");
+
+class RoomsRepo {
+    getAll() {
+        return sessionsRepo.getAll()
+            .then(sessions => {
+                const roomMap = sessions.reduce((accum, session) => {
+                    const rooms = session.Rooms || [];
+                    rooms.forEach(room => accum[room] = true);
+                    return accum;
+                }, {});
+
+                return Object.keys(roomMap);
+            });
+    }
+
+    get(name) {
+        return this.getAll().then(rooms => {
+            return rooms.find(room => room === name);
+        });
+    }
+
+    getSessions(roomName) {
+        return sessionsRepo.getAll()
+            .then(sessions => {
+                return sessions.filter(session => {
+                    const rooms = session.Rooms || [];
+                    return rooms.includes(roomName);
+                });
+            })
+    }
+}
+
+const roomsRepo = new RoomsRepo();
+
 module.exports = {
-    sessions: new Repo("sessionsdata"),
-    speakers: new Repo("speakersdata"),
+    sessions: sessionsRepo,
+    speakers: speakersRepo,
+    rooms: roomsRepo,
 };

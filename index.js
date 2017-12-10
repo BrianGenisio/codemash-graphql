@@ -2,12 +2,17 @@ const express = require('express');
 const graphqlHTTP = require('express-graphql');
 const { buildSchema } = require('graphql');
 
-const {sessions, speakers} = require('./sources.js');
+const {sessions, speakers, rooms} = require('./sources.js');
 
 const schema = buildSchema(`
   input PageArguments {
     first: Int
     after: String
+  }
+
+  type Room {
+      name: String
+      sessions: [Session]!
   }
 
   type Speaker {
@@ -25,7 +30,7 @@ const schema = buildSchema(`
 
   type Session {
     id: ID!
-    rooms: [String]
+    rooms: [Room]
     title: String
     abstract: String
     sessionType: String
@@ -39,18 +44,21 @@ const schema = buildSchema(`
 
     speakers(page: PageArguments): [Speaker]!
     speaker(id: ID): Speaker
+
+    rooms: [Room]!
+    room(name: String): Room
   }
 `);
 
 class Session {
     constructor(session) {
+        console.log("session", session)
         this._session = session;
 
         this.id = session.Id;
         this.title = session.Title;
         this.sessionType = session.SessionType;
         this.tags = session.Tags;
-        this.rooms = session.Rooms;
     }
 
     speakers() {
@@ -58,6 +66,10 @@ class Session {
             return speakers.get(speaker.Id)
                 .then(speaker => new Speaker(speaker));
         });
+    }
+
+    rooms() {
+        return this._session.Rooms.map(room => new Room(room));
     }
 }
 
@@ -81,6 +93,18 @@ class Speaker {
             return sessions.get(sessionId)
                 .then(session => new Session(session));
         });
+    }
+}
+
+class Room {
+    constructor(name) {
+        this.name = name;
+    }
+
+    sessions() {
+        return rooms.getSessions(this.name)
+            .then(sessions =>
+                sessions.map(session => new Session(session)));
     }
 }
 
@@ -124,6 +148,16 @@ class RootQuery {
     speaker({id}) {
         return speakers.get(id)
             .then(speaker => speaker && new Speaker(speaker));
+    }
+
+    rooms() {
+        return rooms.getAll()
+            .then(rooms => rooms.map(name => new Room(name)));
+    }
+
+    room({name}) {
+        return rooms.get(name)
+            .then(room => room && new Room(room));
     }
 }
 
