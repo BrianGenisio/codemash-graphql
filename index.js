@@ -40,9 +40,9 @@ class Session {
 
         this.id = session.Id;
         this.title = session.Title;
-        this.sessionType = this.SessionType;
-        this.tags = this.Tags;
-        this.rooms = this.Rooms;
+        this.sessionType = session.SessionType;
+        this.tags = session.Tags;
+        this.rooms = session.Rooms;
     }
 
     speakers() {
