@@ -35,7 +35,10 @@ const schema = buildSchema(`
 
   type Query {
     sessions(page: PageArguments): [Session]!
+    session(id: ID): Session
+
     speakers(page: PageArguments): [Speaker]!
+    speaker(id: ID): Speaker
   }
 `);
 
@@ -107,10 +110,20 @@ class RootQuery {
                     .map(session => new Session(session)))
     }
 
+    session({id}) {
+        return sessions.get(id)
+            .then(session => session && new Session(session));
+    }
+
     speakers({page}) {
         return speakers.getAll()
             .then(speakers => pageFilter(page, speakers)
                     .map(speaker => new Speaker(speaker)))
+    }
+
+    speaker({id}) {
+        return speakers.get(id)
+            .then(speaker => speaker && new Speaker(speaker));
     }
 }
 
