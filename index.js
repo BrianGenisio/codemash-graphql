@@ -5,6 +5,11 @@ const { buildSchema } = require('graphql');
 const {sessions, speakers} = require('./sources.js');
 
 const schema = buildSchema(`
+  input PageArguments {
+    first: Int
+    after: String
+  }
+
   type Speaker {
     id: ID!
     firstName: String
@@ -29,8 +34,8 @@ const schema = buildSchema(`
   }
 
   type Query {
-    sessions: [Session]!
-    speakers: [Speaker]!
+    sessions(page: PageArguments): [Session]!
+    speakers(page: PageArguments): [Speaker]!
   }
 `);
 
@@ -76,17 +81,36 @@ class Speaker {
     }
 }
 
-class RootQuery {
-    sessions() {
-        return sessions.getAll()
-            .then(sessions => sessions
-                .map(session => new Session(session)))
+function pageFilter(pageArguments, items) {
+    if (!pageArguments) {
+        return items;
     }
 
-    speakers() {
+    if (pageArguments.after) {
+        const itemIndex = items.findIndex(item => item.Id == pageArguments.after);
+        if (itemIndex >= 0) {
+            items = items.slice(itemIndex + 1);
+        }
+    }
+
+    if (pageArguments.first) {
+        return items.slice(0, pageArguments.first);
+    }
+
+    return items;
+}
+
+class RootQuery {
+    sessions({page}) {
+        return sessions.getAll()
+            .then(sessions => pageFilter(page, sessions)
+                    .map(session => new Session(session)))
+    }
+
+    speakers({page}) {
         return speakers.getAll()
-            .then(speakers => speakers
-                .map(speaker => new Speaker(speaker)))
+            .then(speakers => pageFilter(page, speakers)
+                    .map(speaker => new Speaker(speaker)))
     }
 }
 
