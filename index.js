@@ -76,18 +76,24 @@ class Speaker {
     }
 }
 
-const root = {
-    sessions: () => sessions.getAll()
-        .then(sessions => sessions.map(session => new Session(session))),
+class RootQuery {
+    sessions() {
+        return sessions.getAll()
+            .then(sessions => sessions
+                .map(session => new Session(session)))
+    }
 
-    speakers: () => speakers.getAll()
-        .then(speakers => speakers.map(speaker => new Speaker(speaker))),
-};
+    speakers() {
+        return speakers.getAll()
+            .then(speakers => speakers
+                .map(speaker => new Speaker(speaker)))
+    }
+}
 
 const app = express();
 app.use('/graphql', graphqlHTTP({
     schema: schema,
-    rootValue: root,
+    rootValue: new RootQuery(),
     graphiql: true,
 }));
 app.listen(4000, () => console.log('Now browse to localhost:4000/graphql'));
