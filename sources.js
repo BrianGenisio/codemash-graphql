@@ -1,7 +1,4 @@
 const fetch = require("node-fetch");
-const camelcaseKeys = require('camelcase-keys');
-
-const camelcaseKeysDeep = (x) => camelcaseKeys(x, {deep: true});
 
 const baseURL = "https://cmprod-speakers.azurewebsites.net/api";
 
