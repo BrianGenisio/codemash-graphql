@@ -4,7 +4,7 @@ const {ApolloProvider} = window.reactApollo;
 const SessionsWithData = window.SessionsWithData;
 
 const networkInterface = createNetworkInterface({
-  uri: 'http://localhost:4000/graphql'
+  uri: '/graphql'
 });
 const client = new ApolloClient({networkInterface});
 
