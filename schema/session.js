@@ -19,6 +19,7 @@ class Session {
         this._session = session;
 
         this.id = session.Id;
+        this.abstract = session.Abstract;
         this.title = session.Title;
         this.sessionType = session.SessionType;
         this.tags = session.Tags;
